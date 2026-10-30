@@ -160,7 +160,7 @@ RFC 9457 Problem Details, `Content-Type: application/problem+json`.
 | Field | Value |
 |---|---|
 | `type` | `"about:blank"` |
-| `title` | HTTP status text, e.g. `"Unprocessable Content"` |
+| `title` | The RFC 9110 reason phrase for the status: `Bad Request`, `Not Found`, `Method Not Allowed`, `Content Too Large`, `Unsupported Media Type`, `Unprocessable Content` or `Internal Server Error`. Taken from a small table, because Go's `http.StatusText` still returns older phrases for `413` and `422` |
 | `status` | Same as the HTTP status |
 | `detail` | English message for API consumers |
 | `code` | Stable code from the catalog |
@@ -195,7 +195,7 @@ RFC 9457 Problem Details, `Content-Type: application/problem+json`.
   - each route also registers its method-less pattern (`/api/v1/add`, `/healthz`), which returns `METHOD_NOT_ALLOWED` with `Allow: POST` (or `GET` for `/healthz`). In Go 1.22+ routing, `POST /api/v1/add` takes precedence over `/api/v1/add`, which takes precedence over `/`.
 - `INTERNAL_ERROR` uses a generic `detail`; the cause goes only to the log.
 
-**MUST NOT:** `http.Error` or any `text/plain` response; the default `ServeMux` 404/405 bodies; setting headers after `WriteHeader`; `err.Error()` in `detail`; a `status` field that differs from the HTTP status; `500` for domain errors; `application/json` as the error content type.
+**MUST NOT:** `http.Error` or any `text/plain` response; the default `ServeMux` 404/405 bodies; setting headers after `WriteHeader`; `err.Error()` in `detail`; a `status` field that differs from the HTTP status; `http.StatusText` for the `title`; `500` for domain errors; `application/json` as the error content type.
 
 ### 3.6 Health check
 `GET /healthz` → `200 {"status":"ok"}`. Liveness only, outside `/api`, not proxied by nginx. The server binary also accepts a `-healthcheck` flag: it calls `GET http://127.0.0.1:$PORT/healthz` and exits with `0` on `200`, `1` otherwise. Docker uses it (§10.1).

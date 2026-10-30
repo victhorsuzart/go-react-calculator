@@ -153,7 +153,7 @@ docs/                     SPEC.md, DECISIONS.md, screenshot
 .github/workflows/ci.yml  CI: lint, tests with coverage gates, Docker smoke test
 docker-compose.yml        nginx (frontend + /api proxy) and the API
 Makefile                  common tasks
-PROMPTS.md                how AI was used, with every Claude Code prompt
+PROMPTS.md                how AI was used, with the main Claude Code prompt of each step
 ```
 
 ## Limitations and next steps
@@ -169,6 +169,6 @@ PROMPTS.md                how AI was used, with every Claude Code prompt
 
 ## How I used AI
 
-I studied the requirements first. I then planned the design with an AI assistant, which listed and ordered the decisions and laid out the trade-offs; I evaluated each one and made the calls. The result is the spec in `docs/SPEC.md`, which I used to build the project with Claude Code, one prompt per step. The method and every Claude Code prompt are in [PROMPTS.md](PROMPTS.md).
+I studied the requirements first. I then planned the design with an AI assistant, which listed and ordered the decisions and laid out the trade-offs; I evaluated each one and made the calls. The result is the spec in `docs/SPEC.md`, which I used to build the project with Claude Code, step by step, with a separate Claude Code session reviewing each step. The method, the main prompt of each step and what each review changed are in [PROMPTS.md](PROMPTS.md).
 
 <!-- Time spent: planning and implementation, filled in at the end. -->
