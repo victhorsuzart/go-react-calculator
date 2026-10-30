@@ -321,12 +321,12 @@ type State = {   // minimum shape; fields MAY be added (error message, banner)
 
 ### 6.1 Requests
 - The reducer is pure. When a key needs the API, it sets `pending = { id, op, a, b, kind, previous }`, where `id` increases, `kind` is `chain`, `equals` or `unary`, and `previous` is the state before the key.
-- `useCalculator` has one effect, keyed on the pending `id`. It calls `calculate` (§6.2) and dispatches `RESOLVED` or `FAILED`; a response with a different `id` is ignored.
+- `useCalculator` has one effect, which depends on the `pending` object. The reducer keeps the same `pending` object while the request is in flight (queuing keys doesn't replace it), so the effect runs once per request. It calls `calculate` (§6.2) and dispatches `RESOLVED` or `FAILED`; a response with a different `id` is ignored.
 - Keys pressed while a request is pending (except `AC`) are queued, up to 32. After the response is applied, the queue is replayed in order, also after a domain error (the replayed keys then follow the `error` phase rules, §6.2); only a system error discards it. One request at a time; the keypad is never disabled.
 - `AC` resets immediately, and the effect cleanup aborts the `fetch` (on unmount too).
 - **Timeout** 5 s: `AbortSignal.any([AbortSignal.timeout(5000), controller.signal])`. A `TimeoutError` is a system error; an `AbortError` is ignored. No retries. The loading indicator appears after 300 ms (§7.1).
 
-**MUST NOT:** `fetch` in the reducer or in event handlers; parallel requests; effect dependencies other than the pending `id`; removing StrictMode to hide the double request in development; a timeout built with `setTimeout` and `Promise.race`.
+**MUST NOT:** `fetch` in the reducer or in event handlers; parallel requests; effect dependencies other than the pending request (not the whole state, not the queue); removing StrictMode to hide the double request in development; a timeout built with `setTimeout` and `Promise.race`.
 
 ### 6.2 Errors
 `calculate(op, a, b, signal)` in `src/api/client.ts` never throws:
