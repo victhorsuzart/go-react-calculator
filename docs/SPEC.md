@@ -322,7 +322,7 @@ type State = {   // minimum shape; fields MAY be added (error message, banner)
 ### 6.1 Requests
 - The reducer is pure. When a key needs the API, it sets `pending = { id, op, a, b, kind, previous }`, where `id` increases, `kind` is `chain`, `equals` or `unary`, and `previous` is the state before the key.
 - `useCalculator` has one effect, keyed on the pending `id`. It calls `calculate` (§6.2) and dispatches `RESOLVED` or `FAILED`; a response with a different `id` is ignored.
-- Keys pressed while a request is pending (except `AC`) are queued, up to 32, and replayed in order after `RESOLVED`. One request at a time; the keypad is never disabled.
+- Keys pressed while a request is pending (except `AC`) are queued, up to 32. After the response is applied, the queue is replayed in order, also after a domain error (the replayed keys then follow the `error` phase rules, §6.2); only a system error discards it. One request at a time; the keypad is never disabled.
 - `AC` resets immediately, and the effect cleanup aborts the `fetch` (on unmount too).
 - **Timeout** 5 s: `AbortSignal.any([AbortSignal.timeout(5000), controller.signal])`. A `TimeoutError` is a system error; an `AbortError` is ignored. No retries. The loading indicator appears after 300 ms (§7.1).
 
@@ -400,7 +400,7 @@ AC   ⌫    %    ÷
 ## 8. Frontend architecture
 
 ### 8.1 Tooling
-- Vite `react-ts` template, with the current stable versions at build time and the lockfile committed. Never downgrade or mix major versions.
+- Vite `react-ts` template, with the current stable versions at build time and the lockfile committed. Never downgrade or mix major versions, with one exception: TypeScript is pinned to the latest 6.0.x, because typescript-eslint doesn't support TypeScript 7 yet (7.0 has no compiler API; support is expected with 7.1).
 - Node LTS, recorded in `.nvmrc` and `engines` (the same in the Dockerfile and CI). npm only.
 - TypeScript `strict` plus `noUncheckedIndexedAccess`; no `any`, no `@ts-ignore`. ESLint flat config with `typescript-eslint` and `react-hooks` (`exhaustive-deps` as an error); Prettier.
 - StrictMode on; native `fetch`. Vite proxies `/api` to `http://localhost:8080`; the target can be overridden by an environment variable in `vite.config.ts` only.
@@ -604,6 +604,7 @@ Each row starts from the initial state. The harness answers requests from the la
 |---|---|---|---|
 | `2 + 3 +`, then `4 =` before the first response (add 2 3 → 5; add 5 4 → 9) | `5 + 4 =` | `9` | — |
 | `2 + 3 =`, then `AC` before the response; the response arrives later | | `0` | — |
+| `5 ÷ 0 =`, then `7` before the response (divide 5 0 → `DIVISION_BY_ZERO`) | | `7` | — |
 | `8 ÷ 2 =`, no response within 5 s | `8 ÷` | `2` | The server took too long. Try again. |
 | `2 + 3 =`, network failure | `2 +` | `3` | Can't reach the server. Try again. |
 | …then `=` again and the server answers (add 2 3 → 5) | `2 + 3 =` | `5` | — |

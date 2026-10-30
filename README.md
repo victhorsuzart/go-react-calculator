@@ -163,6 +163,7 @@ PROMPTS.md                how AI was used, with the main Claude Code prompt of e
 - An OpenAPI document, checked against `contract/examples.json`.
 - Browser end-to-end tests (Playwright).
 - `golangci-lint`, a Content Security Policy and a coverage badge.
+- Move to TypeScript 7 once typescript-eslint supports it (TypeScript is pinned to 6.0 for now).
 - Authentication, rate limiting, metrics and tracing for a public deployment.
 - Duplicate JSON keys: the last value wins (Go `encoding/json` behavior).
 - On keyboard layouts with dead keys (ABNT2, US-International), `^` needs a second keystroke; the on-screen key always works.
