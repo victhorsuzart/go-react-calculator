@@ -38,7 +38,7 @@ func TestOperations(t *testing.T) {
 		wantErr error
 	}{
 		{"0.1 plus 0.2", "add", "0.1", "0.2", "0.3", nil},
-		{"rounds up to 1e+15", "add", "999999999999999", "1", "1e+15", nil},
+		{"switches to scientific notation at 1e+15", "add", "999999999999999", "1", "1e+15", nil},
 		{"overflow", "add", "1e308", "1e308", "", calc.ErrOutOfRange},
 		{"max overflows after rounding", "add", "1.7976931348623157e308", "0", "", calc.ErrOutOfRange},
 		{"min underflows after rounding", "add", "2.2250738585072014e-308", "0", "", calc.ErrOutOfRange},

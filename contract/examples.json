@@ -1,0 +1,208 @@
+[
+  {
+    "name": "divide 7 by 2",
+    "method": "POST",
+    "path": "/api/v1/divide",
+    "body": { "a": "7", "b": "2" },
+    "status": 200,
+    "response": { "result": "3.5" }
+  },
+  {
+    "name": "square root of 9",
+    "method": "POST",
+    "path": "/api/v1/sqrt",
+    "body": { "a": "9" },
+    "status": 200,
+    "response": { "result": "3" }
+  },
+  {
+    "name": "10 percent of 50",
+    "method": "POST",
+    "path": "/api/v1/percentage",
+    "body": { "a": "10", "b": "50" },
+    "status": 200,
+    "response": { "result": "5" }
+  },
+  {
+    "name": "add 0.1 and 0.2",
+    "method": "POST",
+    "path": "/api/v1/add",
+    "body": { "a": "0.1", "b": "0.2" },
+    "status": 200,
+    "response": { "result": "0.3" }
+  },
+  {
+    "name": "add reaches 1e15 and switches to scientific notation",
+    "method": "POST",
+    "path": "/api/v1/add",
+    "body": { "a": "999999999999999", "b": "1" },
+    "status": 200,
+    "response": { "result": "1e+15" }
+  },
+  {
+    "name": "multiply with a scientific result",
+    "method": "POST",
+    "path": "/api/v1/multiply",
+    "body": { "a": "123456789", "b": "987654321" },
+    "status": 200,
+    "response": { "result": "1.21932631112635e+17" }
+  },
+  {
+    "name": "divide by zero",
+    "method": "POST",
+    "path": "/api/v1/divide",
+    "body": { "a": "5", "b": "0" },
+    "status": 422,
+    "response": {
+      "type": "about:blank",
+      "title": "Unprocessable Content",
+      "status": 422,
+      "detail": "Cannot divide by zero.",
+      "code": "DIVISION_BY_ZERO"
+    }
+  },
+  {
+    "name": "negative base with a fractional exponent",
+    "method": "POST",
+    "path": "/api/v1/power",
+    "body": { "a": "-8", "b": "0.5" },
+    "status": 422,
+    "response": {
+      "type": "about:blank",
+      "title": "Unprocessable Content",
+      "status": 422,
+      "detail": "The result is not a real number.",
+      "code": "UNDEFINED_RESULT"
+    }
+  },
+  {
+    "name": "power overflows",
+    "method": "POST",
+    "path": "/api/v1/power",
+    "body": { "a": "10", "b": "309" },
+    "status": 422,
+    "response": {
+      "type": "about:blank",
+      "title": "Unprocessable Content",
+      "status": 422,
+      "detail": "The result is out of range.",
+      "code": "RESULT_OUT_OF_RANGE"
+    }
+  },
+  {
+    "name": "negative zero is treated as zero",
+    "method": "POST",
+    "path": "/api/v1/add",
+    "body": { "a": "-0", "b": "5" },
+    "status": 200,
+    "response": { "result": "5" }
+  },
+  {
+    "name": "number instead of string and missing field",
+    "method": "POST",
+    "path": "/api/v1/add",
+    "body": { "a": 2 },
+    "status": 400,
+    "response": {
+      "type": "about:blank",
+      "title": "Bad Request",
+      "status": 400,
+      "detail": "One or more fields are invalid.",
+      "code": "VALIDATION_FAILED",
+      "errors": [
+        { "field": "a", "issue": "must_be_string", "message": "a must be a decimal string, e.g. \"2\"." },
+        { "field": "b", "issue": "required", "message": "b is required." }
+      ]
+    }
+  },
+  {
+    "name": "unknown field for a unary operation",
+    "method": "POST",
+    "path": "/api/v1/sqrt",
+    "body": { "a": "9", "b": "1" },
+    "status": 400,
+    "response": {
+      "type": "about:blank",
+      "title": "Bad Request",
+      "status": 400,
+      "detail": "One or more fields are invalid.",
+      "code": "VALIDATION_FAILED",
+      "errors": [
+        { "field": "b", "issue": "unknown_field", "message": "b is not allowed." }
+      ]
+    }
+  },
+  {
+    "name": "input out of range",
+    "method": "POST",
+    "path": "/api/v1/add",
+    "body": { "a": "1e400", "b": "1" },
+    "status": 400,
+    "response": {
+      "type": "about:blank",
+      "title": "Bad Request",
+      "status": 400,
+      "detail": "One or more fields are invalid.",
+      "code": "VALIDATION_FAILED",
+      "errors": [
+        { "field": "a", "issue": "out_of_range", "message": "a is out of range." }
+      ]
+    }
+  },
+  {
+    "name": "body is not an object",
+    "method": "POST",
+    "path": "/api/v1/add",
+    "body": [],
+    "status": 400,
+    "response": {
+      "type": "about:blank",
+      "title": "Bad Request",
+      "status": 400,
+      "detail": "The request body must be a single JSON object.",
+      "code": "MALFORMED_JSON"
+    }
+  },
+  {
+    "name": "body larger than 1 KiB",
+    "method": "POST",
+    "path": "/api/v1/add",
+    "body": { "a": "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111", "b": "1" },
+    "status": 413,
+    "response": {
+      "type": "about:blank",
+      "title": "Content Too Large",
+      "status": 413,
+      "detail": "The request body must not exceed 1 KiB.",
+      "code": "PAYLOAD_TOO_LARGE"
+    }
+  },
+  {
+    "name": "wrong method",
+    "method": "GET",
+    "path": "/api/v1/add",
+    "body": null,
+    "status": 405,
+    "response": {
+      "type": "about:blank",
+      "title": "Method Not Allowed",
+      "status": 405,
+      "detail": "The method is not allowed for this resource.",
+      "code": "METHOD_NOT_ALLOWED"
+    }
+  },
+  {
+    "name": "unknown operation",
+    "method": "POST",
+    "path": "/api/v1/mod",
+    "body": { "a": "7", "b": "2" },
+    "status": 404,
+    "response": {
+      "type": "about:blank",
+      "title": "Not Found",
+      "status": 404,
+      "detail": "The requested resource does not exist.",
+      "code": "NOT_FOUND"
+    }
+  }
+]
