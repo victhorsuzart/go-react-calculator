@@ -78,7 +78,7 @@ Errors follow RFC 9457 (Problem Details, `application/problem+json`) and carry a
 | `MALFORMED_JSON` | 400 | Empty body, invalid JSON, not an object, or data after the object |
 | `VALIDATION_FAILED` | 400 | One or more invalid fields, all listed in `errors` (`required`, `must_be_string`, `invalid_number`, `out_of_range`, `unknown_field`) |
 | `NOT_FOUND` | 404 | Unknown route |
-| `METHOD_NOT_ALLOWED` | 405 | Method other than `POST` (with `Allow: POST`) |
+| `METHOD_NOT_ALLOWED` | 405 | Wrong method; the `Allow` header names the right one (`POST` for operations, `GET` for `/healthz`) |
 | `PAYLOAD_TOO_LARGE` | 413 | Body larger than 1 KiB |
 | `UNSUPPORTED_MEDIA_TYPE` | 415 | `Content-Type` is not JSON |
 | `DIVISION_BY_ZERO` | 422 | `x ÷ 0`, `0 ^ negative` |
@@ -128,12 +128,12 @@ A summary. The alternatives considered and the reasoning behind each choice are 
 
 | Layer | What is tested | How |
 |---|---|---|
-| Go | Number parsing and formatting, every operation and edge case, HTTP validation and errors | Table-driven tests, native fuzzing (number format round-trip), `httptest`, race detector |
+| Go | Number parsing and formatting, every operation and edge case, HTTP validation and errors | Table-driven tests, native fuzzing (number parsing never panics; format round-trip), `httptest`, race detector |
 | Frontend | State machine (key sequence → display), display formatting, keyboard mapping, API client error handling, components | Vitest, Testing Library and user-event; a fake `fetch` with explicit responses, so tests never do arithmetic |
 | Contract | `contract/examples.json`, checked by both layers | Shared fixtures |
 | Smoke | The Docker stack end to end, through nginx | `make smoke`, also in CI |
 
-Coverage gates, enforced in CI: at least 90% on the logic modules and at least 80% overall in each layer.
+Coverage gates, enforced in CI: Go at least 90% on `backend/internal/...` (`cmd/server` is reported but not gated); frontend at least 90% on `src/calculator/` and `src/api/`, and at least 80% overall.
 
 <!-- Coverage table: filled in after the final run of `make cover`. -->
 

@@ -77,6 +77,7 @@ Every result string **MUST** be a valid input (round-trip).
 ### 2.4 Representable range
 - A result **MUST** be zero or fall within the normal `float64` range **after rounding** (§2.3, step 1). Overflow and underflow both yield `RESULT_OUT_OF_RANGE` (§3.3).
 - The check uses the rounded value. `1.7976931348623157e308` rounds to `1.79769313486232e+308`, which overflows.
+- The same applies at the bottom: `2.2250738585072014e-308` rounds to `2.2250738585072e-308`, which is subnormal and underflows. The range of valid results is therefore slightly narrower than the range of valid inputs.
 
 **MUST NOT:** format with `FormatFloat(x, 'f', -1, 64)` (gives `0.30000000000000004`); use Go's `'g'` format without normalizing the exponent (gives `1e-05`); use a fixed number of decimals; mix strings and JSON numbers in the API.
 
@@ -122,9 +123,9 @@ Every operation runs these steps in order:
 | `sqrt` | `a < 0` | `UNDEFINED_RESULT` |
 
 - `0 ^ 0` is `1`.
-- `percentage` computes `a × b / 100`, in that order.
+- `percentage` computes `a × b / 100`, in that order. If `a × b` overflows, it computes `(a / 100) × b` instead.
 - **Overflow:** the rounded value is infinite or beyond the `float64` maximum.
-- **Underflow:** the rounded value is subnormal, or it is `0` although no operand forces a zero result. Operands force zero only in these cases: for `multiply` and `percentage`, when `a = 0` or `b = 0`; for `divide` and `power`, when `a = 0`. A zero from `add` or `subtract` is always exact.
+- **Underflow:** the rounded value is subnormal, or it is `0` although no operand forces a zero result. Operands force zero only in these cases: for `multiply` and `percentage`, when `a = 0` or `b = 0`; for `divide`, `power` and `sqrt`, when `a = 0`. A zero from `add` or `subtract` is always exact.
 - Both yield `RESULT_OUT_OF_RANGE`. All cases are in **Appendix B.1**.
 
 **MUST NOT:** rely on `math.Pow` special cases (`0 ^ -1` returns `+Inf` and would be reported as overflow); check the range before rounding; return `"0"` on underflow; let `-0` reach a response; test for integers with `b == float64(int64(b))`; use `math.Mod`.
@@ -501,6 +502,7 @@ At the repository root, POSIX shell. Targets: `up`, `down`, `dev-backend`, `dev-
 | `add` | `999999999999999` | `1` | `"1e+15"` |
 | `add` | `1e308` | `1e308` | `RESULT_OUT_OF_RANGE` |
 | `add` | `1.7976931348623157e308` | `0` | `RESULT_OUT_OF_RANGE` (overflows after rounding) |
+| `add` | `2.2250738585072014e-308` | `0` | `RESULT_OUT_OF_RANGE` (underflows after rounding) |
 | `subtract` | `0.3` | `0.1` | `"0.2"` |
 | `subtract` | `5` | `5` | `"0"` |
 | `multiply` | `1.5` | `2` | `"3"` |
@@ -530,6 +532,8 @@ At the repository root, POSIX shell. Targets: `up`, `down`, `dev-backend`, `dev-
 | `percentage` | `10` | `50` | `"5"` |
 | `percentage` | `50` | `1` | `"0.5"` |
 | `percentage` | `0` | `50` | `"0"` |
+| `percentage` | `1e308` | `10` | `"1e+307"` (`a × b` overflows; falls back to `(a / 100) × b`) |
+| `percentage` | `1e308` | `1e10` | `RESULT_OUT_OF_RANGE` |
 
 ### B.2 Request validation (API)
 
