@@ -28,6 +28,7 @@ export const initialState: State = {
   nextId: 1,
   error: null,
   banner: null,
+  loading: false,
 }
 
 const SYMBOLS: Record<BinaryOp, string> = {
@@ -50,10 +51,10 @@ function countDigits(entry: string): number {
   return entry.replace(/\D/g, '').length
 }
 
-/** Prepares an entry to be used as an operand: no trailing ".", no "-0". */
+/** Prepares an entry to be used as an operand: no trailing ".", no "-0" (or "-0.0"). */
 function normalize(entry: string): string {
   const trimmed = entry.endsWith('.') ? entry.slice(0, -1) : entry
-  return trimmed === '-0' ? '0' : trimmed
+  return /^-0(\.0*)?$/.test(trimmed) ? trimmed.slice(1) : trimmed
 }
 
 /**
@@ -77,10 +78,16 @@ export function reducer(state: State, action: Action): State {
       return pressKey(state, action.key)
     case 'RESOLVED':
       if (state.pending?.id !== action.id) return state
-      return replay(resolve(state, state.pending, action.result))
+      return continueRun(
+        replay(resolve(state, state.pending, action.result)),
+        state,
+      )
     case 'FAILED':
       if (state.pending?.id !== action.id) return state
       return fail(state, state.pending, action.error)
+    case 'LOADING':
+      if (state.pending?.runId !== action.runId || state.loading) return state
+      return { ...state, loading: true }
   }
 }
 
@@ -230,7 +237,12 @@ function backspaceKey(state: State): State {
 }
 
 function request(state: State, spec: RequestSpec): State {
-  const pending: PendingRequest = { ...spec, id: state.nextId, previous: state }
+  const pending: PendingRequest = {
+    ...spec,
+    id: state.nextId,
+    runId: state.nextId, // a new run; continueRun() extends an existing one
+    previous: state,
+  }
   return { ...state, pending, nextId: state.nextId + 1 }
 }
 
@@ -288,14 +300,30 @@ function fail(state: State, pending: PendingRequest, error: CalcError): State {
         pending.kind === 'unary'
           ? null
           : { a: pending.a, operator: pending.op, b: pending.b }
-      return replay({
-        ...reset(state),
-        phase: 'error',
-        editable: false,
-        queue: state.queue,
-        error: { code: error.code, request },
-      })
+      return continueRun(
+        replay({
+          ...reset(state),
+          phase: 'error',
+          editable: false,
+          queue: state.queue,
+          error: { code: error.code, request },
+        }),
+        state,
+      )
     }
+  }
+}
+
+/**
+ * When a replayed key starts a request at once, that request continues the
+ * busy run of the one that just ended: same runId, loading kept as it was.
+ */
+function continueRun(next: State, ended: State): State {
+  if (!next.pending || !ended.pending) return next
+  return {
+    ...next,
+    loading: ended.loading,
+    pending: { ...next.pending, runId: ended.pending.runId },
   }
 }
 

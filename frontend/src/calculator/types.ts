@@ -21,8 +21,14 @@ export type KeyId =
 export type KeyKind =
   'digit' | 'operator' | 'unary' | 'edit' | 'clear' | 'equals'
 
-export type DomainCode =
-  'DIVISION_BY_ZERO' | 'UNDEFINED_RESULT' | 'RESULT_OUT_OF_RANGE'
+/** The API's domain error codes (SPEC §3.5); the single list of them. */
+export const DOMAIN_CODES = [
+  'DIVISION_BY_ZERO',
+  'UNDEFINED_RESULT',
+  'RESULT_OUT_OF_RANGE',
+] as const
+
+export type DomainCode = (typeof DOMAIN_CODES)[number]
 
 export type SystemReason = 'timeout' | 'network' | 'unknown'
 
@@ -51,6 +57,9 @@ export type RequestSpec =
 
 export type PendingRequest = RequestSpec & {
   id: number
+  /** Id of the first request in an unbroken run; a request started at once
+   *  by a queued key continues the run of the one that just ended. */
+  runId: number
   previous: State // the state before the key that made the request
 }
 
@@ -76,9 +85,11 @@ export type State = {
   nextId: number // id of the next request; survives AC so stale ids never match
   error: DomainError | null // set in the error phase
   banner: SystemReason | null // system error banner
+  loading: boolean // the current run of requests has lasted 300 ms
 }
 
 export type Action =
   | { type: 'KEY'; key: KeyId }
   | { type: 'RESOLVED'; id: number; result: string }
   | { type: 'FAILED'; id: number; error: CalcError }
+  | { type: 'LOADING'; runId: number } // run `runId` has lasted 300 ms

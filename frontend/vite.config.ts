@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: process.env.API_PROXY_TARGET ?? 'http://localhost:8080',
+        target: process.env.API_PROXY_TARGET || 'http://localhost:8080',
         changeOrigin: true,
       },
     },
@@ -18,7 +18,13 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**'],
-      exclude: ['src/main.tsx', 'src/**/*.test.{ts,tsx}', 'src/**/*.css'],
+      // Test files and test helpers (src/test/) are not measured (SPEC §9.5).
+      exclude: [
+        'src/main.tsx',
+        'src/**/*.test.{ts,tsx}',
+        'src/test/**',
+        'src/**/*.css',
+      ],
       thresholds: {
         lines: 80,
         statements: 80,

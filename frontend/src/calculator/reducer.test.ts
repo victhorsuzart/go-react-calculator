@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
+import { requestLabel } from '../test/fakeFetch'
 import { initialState, mainLine, reducer, upperLine } from './reducer'
 import type { Action, CalcError, DomainCode, KeyId, State } from './types'
 
@@ -47,7 +48,7 @@ function run(keys: KeyId[], responses: Record<string, Response> = {}): State {
   const answer = () => {
     while (state.pending) {
       const { id, op, a, b } = state.pending
-      const request = [op, a, b].filter((part) => part !== null).join(' ')
+      const request = requestLabel(op, a, b)
       const response = responses[request]
       if (response === undefined)
         throw new Error(`unexpected request: ${request}`)
@@ -332,7 +333,7 @@ function failed(state: State, error: CalcError): State {
 
 function requestOf(state: State) {
   const p = state.pending
-  return p && [p.op, p.a, p.b].filter((part) => part !== null).join(' ')
+  return p && requestLabel(p.op, p.a, p.b)
 }
 
 // SPEC Appendix B.4, the reducer side: responses are dispatched by hand.
@@ -557,6 +558,54 @@ describe('other reducer rules', () => {
       'percentage 5 1': { domain: 'RESULT_OUT_OF_RANGE' },
     })
     expect(lines(s)).toEqual({ upper: '', main: 'Out of range' })
+  })
+
+  it('sends -0.0 as 0', () => {
+    expect(requestOf(press(initialState, '± 0 . 0 + 1 ='))).toBe('add 0.0 1')
+  })
+
+  it('LOADING marks only the pending run as loading, once', () => {
+    let s = press(initialState, '2 + 3 =')
+    expect(reducer(s, { type: 'LOADING', runId: s.pending!.runId + 1 })).toBe(s)
+    s = reducer(s, { type: 'LOADING', runId: s.pending!.runId })
+    expect(s.loading).toBe(true)
+    expect(reducer(s, { type: 'LOADING', runId: s.pending!.runId })).toBe(s)
+    s = resolved(s, '5')
+    expect(s.loading).toBe(false)
+  })
+
+  it('a request started by a queued key continues the run and its loading', () => {
+    let s = press(initialState, '2 + 3 + 4 =')
+    const runId = s.pending!.runId
+    s = reducer(s, { type: 'LOADING', runId })
+    s = resolved(s, '5')
+    expect(requestOf(s)).toBe('add 5 4')
+    expect(s.pending!.runId).toBe(runId)
+    expect(s.loading).toBe(true)
+  })
+
+  it('a request started by a queued key after a domain error continues the run', () => {
+    let s = press(initialState, '5 ÷ 0 = 9 √')
+    const runId = s.pending!.runId
+    s = reducer(s, { type: 'LOADING', runId })
+    s = failed(s, { kind: 'domain', code: 'DIVISION_BY_ZERO' })
+    expect(requestOf(s)).toBe('sqrt 9')
+    expect(s.pending!.runId).toBe(runId)
+    expect(s.loading).toBe(true)
+  })
+
+  it('a request started later by a new key starts a new run', () => {
+    let s = resolved(press(initialState, '2 + 3 ='), '5')
+    s = press(s, '√')
+    expect(s.pending!.runId).toBe(s.pending!.id)
+    expect(s.loading).toBe(false)
+  })
+
+  it('AC and a system error clear LOADING', () => {
+    let s = press(initialState, '2 + 3 =')
+    s = reducer(s, { type: 'LOADING', runId: s.pending!.runId })
+    expect(press(s, 'AC').loading).toBe(false)
+    expect(failed(s, { kind: 'system', reason: 'network' }).loading).toBe(false)
   })
 
   it('keeps the state unchanged while a request is pending', () => {

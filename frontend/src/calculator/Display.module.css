@@ -1,0 +1,58 @@
+/* Font sizes step by character count (SPEC §7.1) and are capped relative to
+   the display's width (cqi), so the longest reachable text still fits at
+   320 px. No DOM measuring; the text never wraps or scrolls. */
+.display {
+  container-type: inline-size;
+  padding: 0.75rem 0.5rem 0.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.upper {
+  margin: 0;
+  min-height: 1.5rem;
+  line-height: 1.5rem;
+  color: var(--muted-fg);
+}
+
+.upperLarge {
+  font-size: 1rem;
+}
+
+.upperMedium {
+  font-size: min(1rem, 5.4cqi);
+}
+
+.upperSmall {
+  font-size: min(1rem, 4.2cqi);
+}
+
+.upperTiny {
+  font-size: min(1rem, 3.3cqi);
+}
+
+.loading {
+  margin-left: 0.25rem;
+}
+
+.main {
+  color: var(--display-fg);
+  line-height: 1.2;
+}
+
+/* ≤ 9 characters */
+.large {
+  font-size: min(3rem, 18cqi);
+}
+
+/* 10–13 characters */
+.medium {
+  font-size: min(2.25rem, 13cqi);
+}
+
+/* ≥ 14 characters, up to the 23 of "-0.00000123456789012345" */
+.small {
+  font-size: min(1.5rem, 7.2cqi);
+}

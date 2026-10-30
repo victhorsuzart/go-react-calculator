@@ -1,0 +1,74 @@
+.key {
+  width: 100%;
+  min-width: 48px;
+  min-height: 48px;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: var(--radius-key);
+  background: var(--key-bg);
+  color: var(--key-fg);
+  font: inherit;
+  font-size: 1.375rem;
+  cursor: pointer;
+  transition: background-color 100ms ease-out;
+}
+
+.key:hover {
+  background: var(--key-bg-hover);
+}
+
+.key:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Spanning keys fill their area instead of staying square. */
+.spanning {
+  aspect-ratio: auto;
+}
+
+.operator,
+.unary {
+  background: var(--operator-bg);
+  color: var(--operator-fg);
+}
+
+.operator:hover,
+.unary:hover {
+  background: var(--operator-bg-hover);
+}
+
+.equals {
+  background: var(--equals-bg);
+  color: var(--equals-fg);
+  font-weight: 700;
+}
+
+.equals:hover {
+  background: var(--equals-bg-hover);
+}
+
+.clear {
+  background: var(--clear-bg);
+  color: var(--clear-fg);
+  font-weight: 600;
+}
+
+.clear:hover {
+  background: var(--clear-bg-hover);
+}
+
+/* After the kind and hover rules, and more specific, so a flash shows even
+   on a hovered key. */
+.key.flash,
+.key.flash:hover {
+  background: var(--flash-bg);
+  color: var(--flash-fg);
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .key {
+    transition: none;
+  }
+}

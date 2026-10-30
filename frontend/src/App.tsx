@@ -1,8 +1,9 @@
-// Placeholder until the calculator components (stage 4).
+import { Calculator } from './calculator/Calculator'
+
 export default function App() {
   return (
     <main>
-      <h1>Calculator</h1>
+      <Calculator />
     </main>
   )
 }

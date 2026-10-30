@@ -1,0 +1,71 @@
+/* Theme tokens (light by default, dark via prefers-color-scheme) and page
+   layout, shared by every calculator CSS module. */
+:root {
+  color-scheme: light dark;
+  --page-bg: #eef0f3;
+  --card-bg: #ffffff;
+  --display-fg: #111418;
+  --muted-fg: #4b5563;
+  --key-bg: #e5e7eb;
+  --key-bg-hover: #d1d5db;
+  --key-fg: #111418;
+  --operator-bg: #dbeafe;
+  --operator-bg-hover: #bfdbfe;
+  --operator-fg: #1e3a8a;
+  --equals-bg: #1d4ed8;
+  --equals-bg-hover: #1e40af;
+  --equals-fg: #ffffff;
+  --clear-bg: #fee2e2;
+  --clear-bg-hover: #fecaca;
+  --clear-fg: #991b1b;
+  --flash-bg: #fde68a;
+  --flash-fg: #111418;
+  --banner-bg: #fef3c7;
+  --banner-fg: #78350f;
+  --focus-ring: #2563eb;
+  --radius-card: 16px;
+  --radius-key: 12px;
+  --gap: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-bg: #0b0d10;
+    --card-bg: #171a1f;
+    --display-fg: #f3f4f6;
+    --muted-fg: #a1a7b0;
+    --key-bg: #2a2f36;
+    --key-bg-hover: #353b44;
+    --key-fg: #f3f4f6;
+    --operator-bg: #1e3a5f;
+    --operator-bg-hover: #25476f;
+    --operator-fg: #dbeafe;
+    --equals-bg: #3b82f6;
+    --equals-bg-hover: #60a5fa;
+    --equals-fg: #0b0d10;
+    --clear-bg: #5b1d1d;
+    --clear-bg-hover: #6e2424;
+    --clear-fg: #fee2e2;
+    --flash-bg: #92400e;
+    --flash-fg: #f3f4f6;
+    --banner-bg: #422006;
+    --banner-fg: #fde68a;
+    --focus-ring: #93c5fd;
+  }
+}
+
+body {
+  box-sizing: border-box;
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  background: var(--page-bg);
+  font-family: system-ui, sans-serif;
+}
+
+#root {
+  width: 100%;
+}

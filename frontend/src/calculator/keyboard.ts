@@ -22,6 +22,11 @@ const repeatable = new Set<KeyId>(
   ),
 )
 
+/** Whether holding the key down may repeat it (SPEC §7.2). */
+export function isRepeatable(key: KeyId): boolean {
+  return repeatable.has(key)
+}
+
 /**
  * Maps a keydown event to a calculator key (SPEC §7.2), or null when the
  * event is not handled. Letters are case-insensitive and Shift is accepted.
@@ -31,6 +36,6 @@ export function keyFromEvent(e: KeyEventLike): KeyId | null {
   const key = e.key.length === 1 ? e.key.toLowerCase() : e.key
   const id = byShortcut.get(key)
   if (id === undefined) return null
-  if (e.repeat && !repeatable.has(id)) return null
+  if (e.repeat && !isRepeatable(id)) return null
   return id
 }
