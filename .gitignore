@@ -1,0 +1,21 @@
+# Dependencies and builds
+node_modules/
+dist/
+*.exe
+
+# Coverage
+coverage/
+*.out
+coverage.html
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
