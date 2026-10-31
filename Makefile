@@ -2,7 +2,7 @@ SHELL := /bin/sh
 
 FUZZTIME ?= 30s
 
-.PHONY: up down dev-backend dev-frontend test cover lint smoke fuzz
+.PHONY: up down dev-backend dev-frontend test cover cover-backend cover-frontend lint smoke fuzz
 
 up:
 	docker compose up --build -d
@@ -20,9 +20,10 @@ test:
 	cd backend && go test -race ./...
 	cd frontend && npm test
 
+cover: cover-backend cover-frontend
+
 # Go gate: ./internal/... >= 90% (SPEC §9.5); cmd/server is reported, not gated.
-# The frontend gate is Vitest's coverage.thresholds.
-cover:
+cover-backend:
 	cd backend && go test -race -coverprofile=coverage.out ./...
 	cd backend && go tool cover -func=coverage.out
 	cd backend && go tool cover -html=coverage.out -o coverage.html
@@ -34,6 +35,9 @@ cover:
 	case "$$pct" in *[!0-9.]*) echo "FAIL: could not read Go coverage of ./internal/..."; exit 1 ;; esac; \
 	echo "Go coverage of ./internal/...: $$pct% (gate 90%)"; \
 	if [ "$${pct%%.*}" -lt 90 ]; then echo "FAIL: Go coverage below 90%"; exit 1; fi
+
+# The frontend gate is Vitest's coverage.thresholds.
+cover-frontend:
 	cd frontend && npm run test:coverage
 
 lint:

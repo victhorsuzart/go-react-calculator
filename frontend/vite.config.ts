@@ -17,6 +17,14 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     coverage: {
       provider: 'v8',
+      // Vitest's defaults plus a plain-text copy of the table for the CI summary.
+      reporter: [
+        'text',
+        'html',
+        'clover',
+        'json',
+        ['text', { file: 'coverage.txt' }],
+      ],
       include: ['src/**'],
       // Test files and test helpers (src/test/) are not measured (SPEC §9.5).
       exclude: [

@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          # No go.sum (no dependencies), so key the cache on go.mod.
+          cache-dependency-path: backend/go.mod
+
+      - name: gofmt
+        working-directory: backend
+        run: test -z "$(gofmt -l .)"
+
+      - name: go vet
+        working-directory: backend
+        run: go vet ./...
+
+      - name: Tests (race, coverage) and gate
+        shell: bash
+        run: make cover-backend 2>&1 | tee "$RUNNER_TEMP/backend-cover.log"
+
+      - name: Coverage summary
+        if: ${{ !cancelled() && hashFiles('backend/coverage.out') != '' }}
+        working-directory: backend
+        run: |
+          {
+            echo '## Backend coverage'
+            echo
+            echo '```text'
+            grep -E 'coverage:|^Go coverage of|^FAIL' "$RUNNER_TEMP/backend-cover.log" || true
+            echo '```'
+            echo
+            echo '<details><summary>Per function</summary>'
+            echo
+            echo '```text'
+            go tool cover -func=coverage.out
+            echo '```'
+            echo
+            echo '</details>'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage report
+        if: ${{ !cancelled() && hashFiles('backend/coverage.html') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-coverage
+          path: backend/coverage.html
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: npm ci
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Type check
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Tests (coverage) and gate
+        run: make cover-frontend
+
+      - name: Coverage summary
+        if: ${{ !cancelled() && hashFiles('frontend/coverage/coverage.txt') != '' }}
+        working-directory: frontend
+        run: |
+          {
+            echo '## Frontend coverage'
+            echo
+            echo '```text'
+            cat coverage/coverage.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage report
+        if: ${{ !cancelled() && hashFiles('frontend/coverage/coverage.txt') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-coverage
+          # The HTML report and its assets only.
+          path: |
+            frontend/coverage/
+            !frontend/coverage/clover.xml
+            !frontend/coverage/coverage-final.json
+            !frontend/coverage/coverage.txt
+
+  smoke:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Smoke test
+        run: make smoke
