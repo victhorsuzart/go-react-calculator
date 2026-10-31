@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: ./backend
+    healthcheck:
+      test: ["CMD", "/server", "-healthcheck"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      start_interval: 1s
+      retries: 3
+    # Longer than the server's 10 s shutdown deadline (SPEC §4.3).
+    stop_grace_period: 15s
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
