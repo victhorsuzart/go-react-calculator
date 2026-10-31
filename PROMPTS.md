@@ -11,7 +11,8 @@ The 22 decisions, with the alternatives and my reasoning, are in [`docs/DECISION
 The project was built with Claude Code in seven steps, each committed separately (with a separate `Docs:` commit when the SPEC changed). Each step ran the same way:
 
 - The step's main prompt ran first in plan mode. I checked the plan against the SPEC before approving it.
-- A second Claude Code session reviewed the result, over several rounds, until it found nothing more. I relayed its findings to the coding session and reviewed the final code myself before committing and pushing.
+- I read every line of the result against the SPEC, and ran the tests and the stack locally. In parallel, a second Claude Code session reviewed the same code over several rounds; I judged each of its findings, discarded the ones I disagreed with and relayed the rest to the coding session.
+- Only after my own review was done did I commit and push, by hand; Claude Code never committed.
 - When either session found a problem in the SPEC itself, it stopped and described it. I decided the fix in the planning session, updated the SPEC, and only then let the step continue.
 
 Below is the main prompt of each step, verbatim. The follow-up prompts from the review rounds are not included; instead, each step ends with a short note on what the review changed.

@@ -185,4 +185,4 @@ PROMPTS.md                how AI was used, with the main Claude Code prompt of e
 
 ## How I used AI
 
-I studied the requirements first. I then planned the design with an AI assistant, which listed and ordered the decisions and laid out the trade-offs; I evaluated each one and made the calls. The result is the spec in `docs/SPEC.md`, which I used to build the project with Claude Code, step by step, with a separate Claude Code session reviewing each step. The method, the main prompt of each step and what each review changed are in [PROMPTS.md](PROMPTS.md).
+I studied the requirements first. I then planned the design with an AI assistant, which listed and ordered the decisions and laid out the trade-offs; I evaluated each one and made the calls. The result is the spec in `docs/SPEC.md`, which I used to build the project with Claude Code, step by step. I reviewed every line of each step against the spec before committing it, helped by a separate Claude Code session that reviewed the code too. The method, the main prompt of each step and what each review changed are in [PROMPTS.md](PROMPTS.md).
