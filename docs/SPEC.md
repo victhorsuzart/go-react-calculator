@@ -473,7 +473,7 @@ At the repository root, POSIX shell. Targets: `up`, `down`, `dev-backend`, `dev-
 **MUST NOT (§10):** single-stage images; shell-form `CMD`; `proxy_pass` with a trailing slash; a `curl` healthcheck on distroless; running as root; `localhost` between containers; a published backend port; the Vite dev server in an image; `npm install` in CI; Vitest in watch mode; outdated action versions or `set-output`.
 
 ## 11. Repository and documentation
-- **README:** overview and screenshot; quick start; running locally; API with `curl` examples and the error catalog; calculator behavior and shortcuts; design decisions (summary with a link to `docs/DECISIONS.md`); testing and coverage; project structure; limitations and next steps; how AI was used; time spent. Numbers (coverage, time) come from real runs and are never invented.
+- **README:** overview and screenshot; quick start; running locally; API with `curl` examples and the error catalog; calculator behavior and shortcuts; design decisions (summary with a link to `docs/DECISIONS.md`); testing and coverage; project structure; limitations and next steps; how AI was used. Numbers (coverage) come from real runs and are never invented.
 - **`docs/DECISIONS.md`** and **`PROMPTS.md`** are written by the author. Implementers **MUST NOT** edit them, and **MUST NOT** rewrite the recorded prompts.
 - **Commits:** Conventional Commits in English, one per step, no squashing, on `main`.
 - **`.gitignore`:** `node_modules/`, `dist/`, `coverage/`, `*.out`, `coverage.html`, `.env`, OS and editor files.

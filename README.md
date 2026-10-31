@@ -2,7 +2,7 @@
 
 A web calculator with a React + TypeScript frontend and a Go REST API. Every arithmetic operation is performed by the API; the frontend only manages input and display.
 
-<!-- Screenshot: docs/screenshot.png (added after implementation). -->
+![The calculator in the browser](docs/screenshot.png)
 
 ## Quick start
 
@@ -51,6 +51,8 @@ A successful call returns `200` with `{"result": "3.5"}`. Results are rounded to
 `GET /healthz` is a liveness check for the container; it is not exposed through nginx.
 
 ### Examples
+
+The comments show the status and the body; `curl -s` prints only the body (add `-i` to see the status).
 
 ```bash
 curl -s http://localhost:3000/api/v1/add \
@@ -135,7 +137,20 @@ A summary. The alternatives considered and the reasoning behind each choice are 
 
 Coverage gates, enforced in CI: Go at least 90% on `backend/internal/...` (`cmd/server` is reported but not gated); frontend at least 90% on `src/calculator/` and `src/api/`, and at least 80% overall.
 
-<!-- Coverage table: filled in after the final run of `make cover`. -->
+Coverage from `make cover` (2026-10-30):
+
+| Go package | Statements |
+|---|---|
+| `internal/calc` | 100.0% |
+| `internal/httpapi` | 99.4% |
+| `internal/number` | 97.6% |
+| `internal/...` (gated) | 99.1% |
+
+| Frontend | Statements | Branches | Functions | Lines |
+|---|---|---|---|---|
+| Total | 99.61% | 98.67% | 100% | 100% |
+| `src/api` | 100% | 96.66% | 100% | 100% |
+| `src/calculator` | 99.56% | 98.98% | 100% | 100% |
 
 ## Project structure
 
@@ -171,5 +186,3 @@ PROMPTS.md                how AI was used, with the main Claude Code prompt of e
 ## How I used AI
 
 I studied the requirements first. I then planned the design with an AI assistant, which listed and ordered the decisions and laid out the trade-offs; I evaluated each one and made the calls. The result is the spec in `docs/SPEC.md`, which I used to build the project with Claude Code, step by step, with a separate Claude Code session reviewing each step. The method, the main prompt of each step and what each review changed are in [PROMPTS.md](PROMPTS.md).
-
-<!-- Time spent: planning and implementation, filled in at the end. -->
