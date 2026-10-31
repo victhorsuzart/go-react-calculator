@@ -201,5 +201,3 @@ Done when:
 
 In the plan, list what you'll run and in which order.
 ```
-
-<!-- Review notes for step 7: to fill in. -->
